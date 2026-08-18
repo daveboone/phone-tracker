@@ -4,40 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Phone Tracker Map</title>
-    <link rel="stylesheet" href="https://unpkg.com" />
-    <script src="https://unpkg.com"></script>
+    
+    <!-- 1. LOAD MAP STYLE FIRST -->
+    <link rel="stylesheet" href="https://unpkg.com" crossorigin="" />
+    
+    <!-- 2. LOAD MAP JAVASCRIPT CODE SECOND -->
+    <script src="https://unpkg.com" crossorigin=""></script>
+
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif; }
-        #map { height: 100vh; width: 100%; }
-        .info-panel { position: absolute; top: 10px; left: 50px; background: white; padding: 10px 15px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); z-index: 1000; }
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            font-family: Arial, sans-serif; 
+        }
+        #map { 
+            height: 100vh; 
+            width: 100%; 
+        }
+        .info-panel { 
+            position: absolute; 
+            top: 10px; 
+            left: 50px; 
+            background: white; 
+            padding: 10px 15px; 
+            border-radius: 5px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3); 
+            z-index: 1000; 
+        }
     </style>
 </head>
 <body>
+
     <div class="info-panel">
         <h3>Live Phone Tracker</h3>
         <p id="coords">Waiting for coordinates...</p>
     </div>
-    <div id="map"></div>
-    <script>
-        const map = L.map('map').setView([39.8283, -98.5795], 4);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-        
-        let marker = L.marker([39.8283, -98.5795]).addTo(map);
 
-        async function fetchLatestLocation() {
-            try {
-                const response = await fetch('/api/current-location');
-                const data = await response.json();
-                marker.setLatLng([data.lat, data.lng]);
-                document.getElementById('coords').innerText = `Lat: ${data.lat.toFixed(4)}, Lng: ${data.lng.toFixed(4)}`;
-            } catch (err) {
-                console.error("Error fetching data:", err);
+    <div id="map"></div>
+
+    <script>
+        // Make sure Leaflet (L) exists before running
+        if (typeof L !== 'undefined') {
+            const map = L.map('map').setView([39.8283, -98.5795], 4);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            let marker = L.marker([39.8283, -98.5795]).addTo(map);
+
+            async function fetchLatestLocation() {
+                try {
+                    const response = await fetch('api/current-location'); 
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    const data = await response.json();
+                    console.log("Webpage received data:", data);
+
+                    const lat = data.lat !== undefined ? data.lat : data.latitude;
+                    const lng = data.lng !== undefined ? data.lng : data.longitude;
+
+                    if (lat !== undefined && lng !== undefined) {
+                        marker.setLatLng([lat, lng]);
+                        document.getElementById('coords').innerText = `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+                    } else {
+                        document.getElementById('coords').innerText = "Data error: Missing fields.";
+                    }
+                } catch (err) {
+                    console.error("Error fetching data:", err);
+                    document.getElementById('coords').innerText = "Connection error.";
+                }
             }
+
+            setInterval(fetchLatestLocation, 5000);
+            fetchLatestLocation();
+        } else {
+            document.getElementById('coords').innerText = "Error: Map library failed to load.";
         }
-        setInterval(fetchLatestLocation, 5000);
-        fetchLatestLocation();
     </script>
 </body>
 </html>
