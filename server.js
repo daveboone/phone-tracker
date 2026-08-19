@@ -9,6 +9,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 let lastPosition = { lat: 39.8283, lng: -98.5795 }; 
 
 app.post('/api/location', (req, res) => {
+    console.log('Content-Type:', req.headers['content-type']);
+    console.log('Raw body:', req.body);
     const { latitude, longitude } = req.body;
     if (latitude && longitude) {
         lastPosition = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
