@@ -24,6 +24,12 @@ app.get('/api/current-location', (req, res) => {
     res.json(lastPosition);
 });
 
+// Add this error handler AFTER all your routes, right before app.listen:
+app.use((err, req, res, next) => {
+    console.log('Middleware error caught:', err.message);
+    res.status(400).send('Bad request: ' + err.message);
+});
+
 //retry
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
