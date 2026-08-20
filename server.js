@@ -6,15 +6,25 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let lastPosition = { lat: 39.8283, lng: -98.5795 }; 
+let lastPosition = { 
+    lat: 39.8283, 
+    lng: -98.5795, 
+    altitude: null, 
+    speed: null, 
+    timestamp: null 
+};
 
 app.post('/api/location', (req, res) => {
-    console.log('Content-Type:', req.headers['content-type']);
-    console.log('Raw body:', req.body);
-    const { latitude, longitude } = req.body;
+    const { latitude, longitude, altitude, speed, timestamp } = req.body;
     if (latitude && longitude) {
-        lastPosition = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
-        console.log(`[Phone Update] Lat ${latitude}, Lng ${longitude}`);
+        lastPosition = {
+            lat: parseFloat(latitude),
+            lng: parseFloat(longitude),
+            altitude: altitude ? parseFloat(altitude) : null,
+            speed: speed ? parseFloat(speed) : null,
+            timestamp: timestamp ? parseInt(timestamp) : Date.now() / 1000
+        };
+        console.log(`[Phone Update] Lat ${latitude}, Lng ${longitude}, Alt ${altitude}, Speed ${speed}`);
         return res.status(200).send("Location updated.");
     }
     res.status(400).send("Missing data.");
@@ -22,12 +32,6 @@ app.post('/api/location', (req, res) => {
 
 app.get('/api/current-location', (req, res) => {
     res.json(lastPosition);
-});
-
-// Add this error handler AFTER all your routes, right before app.listen:
-app.use((err, req, res, next) => {
-    console.log('Middleware error caught:', err.message);
-    res.status(400).send('Bad request: ' + err.message);
 });
 
 //retry
