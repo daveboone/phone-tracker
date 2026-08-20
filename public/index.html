@@ -51,7 +51,7 @@
 
                     if (lat !== undefined && lng !== undefined) {
                         marker.setLatLng([lat, lng]);
-                        document.getElementById('coords').innerText = `Elev: ${elev.toFixed(0)}, Speed: ${spd.toFixed(0)}`;
+                        document.getElementById('coords').innerText = `Elev: ${elev.toFixed(0)ft}, Speed: ${spd.toFixed(0)}mph`;
                     } else {
                         document.getElementById('coords').innerText = "Data error: Missing fields.";
                     }
