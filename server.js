@@ -17,8 +17,8 @@ let lastPosition = {
 let pathHistory = [{ lat: 33.7464, lng: -111.9426 }];
 
 // Minimum raw degree difference before saving a new path point
-const MIN_LAT_DIFF = 0.04;
-const MIN_LON_DIFF = 0.03;
+const MIN_LAT_DIFF = 0.01;
+const MIN_LON_DIFF = 0.01;
 
 app.post('/api/location', (req, res) => {
     const { latitude, longitude, altitude, speed, timestamp } = req.body;
