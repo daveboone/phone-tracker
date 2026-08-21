@@ -43,7 +43,7 @@ app.post('/api/location', (req, res) => {
         }
         
         // Initialize path on lat & lon = 0.0
-        if ((lat == 0.0) && (lon == 0.0) ) {
+        if (lat < 0.1 ) {
             pathHistory = [{ lat: 33.7464, lng: -111.9426 }];
         }
         
