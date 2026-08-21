@@ -26,46 +26,55 @@
     <div id="map"></div>
 
     <script>
-        // Make sure Leaflet (L) exists before running
-        if (typeof L !== 'undefined') {
-            const map = L.map('map').setView([39.8283, -98.5795], 4);
+    if (typeof L !== 'undefined') {
+        const map = L.map('map').setView([39.8283, -98.5795], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        let marker = L.marker([39.8283, -98.5795]).addTo(map);
+        let polyline = L.polyline([], { color: 'blue', weight: 3 }).addTo(map);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-            
-            let marker = L.marker([39.8283, -98.5795]).addTo(map);
-
-            async function fetchLatestLocation() {
-                try {
-                    const response = await fetch('api/current-location'); 
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    
-                    const data = await response.json();
-                    console.log("Webpage received data:", data);
-
-                    const lat = data.lat !== undefined ? data.lat : data.latitude;
-                    const lng = data.lng !== undefined ? data.lng : data.longitude;
-                    const elev = data.altitude !== undefined ? data.altitude*3.28 : 0.0;
-                    const spd  = data.speed !== undefined ? data.speed * 2.236 : 0.0;
-
-                    if (lat !== undefined && lng !== undefined) {
-                        marker.setLatLng([lat, lng]);
-                        document.getElementById('coords').innerText = `Elev: ${elev.toFixed(0)}ft, Speed: ${spd.toFixed(0)}mph`;
-                    } else {
-                        document.getElementById('coords').innerText = "Data error: Missing fields.";
-                    }
-                } catch (err) {
-                    console.error("Error fetching data:", err);
-                    document.getElementById('coords').innerText = "Connection error.";
+        async function fetchLatestLocation() {
+            try {
+                const response = await fetch('api/current-location'); 
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const data = await response.json();
+                const lat = data.lat !== undefined ? data.lat : data.latitude;
+                const lng = data.lng !== undefined ? data.lng : data.longitude;
+                const elev = data.altitude !== undefined ? data.altitude*3.28 : 0.0;
+                const spd  = data.speed !== undefined ? data.speed * 2.236 : 0.0;
+                if (lat !== undefined && lng !== undefined) {
+                    marker.setLatLng([lat, lng]);
+                    document.getElementById('coords').innerText = `Elev: ${elev.toFixed(0)}ft, Speed: ${spd.toFixed(0)}mph`;
+                } else {
+                    document.getElementById('coords').innerText = "Data error: Missing fields.";
                 }
+            } catch (err) {
+                console.error("Error fetching data:", err);
+                document.getElementById('coords').innerText = "Connection error.";
             }
-
-            setInterval(fetchLatestLocation, 5000);
-            fetchLatestLocation();
-        } else {
-            document.getElementById('coords').innerText = "Error: Map library failed to load.";
         }
+
+        async function fetchPathHistory() {
+            try {
+                const response = await fetch('api/path-history');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const points = await response.json();
+                const latLngs = points.map(p => [p.lat, p.lng]);
+                polyline.setLatLngs(latLngs);
+            } catch (err) {
+                console.error("Error fetching path history:", err);
+            }
+        }
+
+        // Load once on page open — no periodic polling
+        fetchLatestLocation();
+        fetchPathHistory();
+    } else {
+        document.getElementById('coords').innerText = "Error: Map library failed to load.";
+    }
     </script>
 </body>
 </html>
