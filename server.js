@@ -41,7 +41,12 @@ app.post('/api/location', (req, res) => {
             Math.abs(lng - lastPoint.lng) > MIN_LON_DIFF) {
             pathHistory.push({ lat, lng });
         }
-
+        
+        // Initialize path on lat & lon = 0.0
+        if ((lat == 0.0) && (lon == 0.0) ) {
+            pathHistory = [{ lat: 33.7464, lng: -111.9426 }];
+        }
+        
         console.log(`[Phone Update] Lat ${latitude}, Lng ${longitude}, Alt ${altitude}, Speed ${speed}`);
         return res.status(200).send("Location updated.");
     }
