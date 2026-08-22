@@ -33,7 +33,7 @@
         }).addTo(map);
         
         let marker = L.marker([39.8283, -98.5795]).addTo(map);
-        let polyline = L.polyline([], { color: 'blue', weight: 3 }).addTo(map);
+        let polyline = L.polyline([], { color: '#1E90FF', weight: 3 }).addTo(map);
 
         async function fetchLatestLocation() {
             try {
@@ -45,6 +45,7 @@
                 const lng = data.lng !== undefined ? data.lng : data.longitude;
                 const elev = data.altitude !== undefined ? data.altitude*3.28 : 0.0;
                 const spd  = data.speed !== undefined ? data.speed * 2.236 : 0.0;
+                if (spd < 1.6) { spd = 0.0 };
                 if (lat !== undefined && lng !== undefined) {
                     marker.setLatLng([lat, lng]);
                     document.getElementById('coords').innerText = `Elev: ${elev.toFixed(0)}ft, Speed: ${spd.toFixed(0)}mph`;
