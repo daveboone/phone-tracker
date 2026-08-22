@@ -45,10 +45,11 @@
                 const lng = data.lng !== undefined ? data.lng : data.longitude;
                 const elev = data.altitude !== undefined ? data.altitude*3.28 : 0.0;
                 const spd  = data.speed !== undefined ? data.speed * 2.236 : 0.0;
-                if (spd < 1.6) { spd = 0.0 };
+                let spd1 = spd;
+                if (spd1 < 1.6) { spd1 = 0.0 };
                 if (lat !== undefined && lng !== undefined) {
                     marker.setLatLng([lat, lng]);
-                    document.getElementById('coords').innerText = `Elev: ${elev.toFixed(0)}ft, Speed: ${spd.toFixed(0)}mph`;
+                    document.getElementById('coords').innerText = `Elev: ${elev.toFixed(0)}ft, Speed: ${spd1.toFixed(0)}mph`;
                 } else {
                     document.getElementById('coords').innerText = "Data error: Missing fields.";
                 }
